@@ -1,4 +1,5 @@
 ﻿
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -8,14 +9,16 @@ namespace WordleSolverRegex
     {
         static void Main(string[] args)
         {
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = "WordleSolverRegex.WordList.txt";
+            string wordList;
 
-            var pathToWordListFile = @"C:\github\WordleSolverRegex\WordleSolverRegex\WordleSolverRegex\WordList.txt";
-            var wordList = new StringBuilder();
-            foreach (var item in File.ReadAllLines(pathToWordListFile))
+            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            using (StreamReader reader = new StreamReader(stream))
             {
-                wordList.AppendLine(item);
+               wordList = reader.ReadToEnd();
             }
-
+      
             var letterPattern = new List<string>()
             {
                 "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]",
