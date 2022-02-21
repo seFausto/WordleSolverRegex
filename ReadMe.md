@@ -14,4 +14,4 @@ If a letter is gray, I know that it doesn't exist at all on the solution.
 
 ## Acknowledgement
 
-The console application options were inspired by https://github.com/LeoTheBestCoder/wordle-solver
+The console application was inspired by https://github.com/LeoTheBestCoder/wordle-solver
