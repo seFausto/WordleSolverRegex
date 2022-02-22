@@ -7,6 +7,8 @@ namespace WordleSolverRegex
 {
     internal class Program
     {
+        private const string WinningInput = "22222";
+        private static Regex inputRegex = new Regex("^[012]{5}$");
         static void Main(string[] args)
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -37,7 +39,7 @@ namespace WordleSolverRegex
 
             string letters = string.Empty;
 
-            Console.WriteLine("start with 'CRANE'");
+            Console.WriteLine("Start with 'CRANE'");
             string word = "CRANE";
             int loopCount = 0;
             do
@@ -47,12 +49,20 @@ namespace WordleSolverRegex
                 string? input;
                 do
                 {
-                    Console.WriteLine("Type 0 for Gray, 1 for Yellow, 2 for Green (e.g. 00112) for each Letter");
+                    Console.WriteLine("Only valid values: 0 for Gray, 1 for Yellow, 2 for Green (e.g. 00112) for each Letter");
                     input = Console.ReadLine();
 
-                } while (string.IsNullOrEmpty(input) || input?.Length < 5);
+                } while (!inputRegex.IsMatch(input ?? string.Empty));
 
+                if (input == WinningInput)
+                {
+                    Console.WriteLine("Contratulations!");
+                    break;
+                }
 
+                if (input == null)
+                    throw new NullReferenceException(nameof(input));
+                
                 //process input
                 letterPattern = ProcessInput(letterPattern, input, word, ref letters);
 
@@ -61,6 +71,7 @@ namespace WordleSolverRegex
                 var matches = regex.Matches(wordList.ToString());
                 var possibleAnswers = new List<string>();
 
+                Console.WriteLine("----------");
                 Console.WriteLine($"Listing matches: Count {matches.Count}");
                 Console.WriteLine($"Must Include: {letters}");
                 foreach (Match match in matches)
@@ -76,7 +87,10 @@ namespace WordleSolverRegex
                 word = possibleAnswers[nextIndex].ToUpper();
                 Console.WriteLine($"Try word: {word} ");
 
-            } while (loopCount <= 5);
+            } while (loopCount < 5);
+
+            Console.WriteLine("Hope you got the answer!");
+            Console.ReadLine();
         }
 
         private static List<string> ProcessInput(List<string> letterPattern, string input,
