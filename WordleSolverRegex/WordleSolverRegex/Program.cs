@@ -10,15 +10,22 @@ namespace WordleSolverRegex
         static void Main(string[] args)
         {
             var assembly = Assembly.GetExecutingAssembly();
+
+            if (assembly == null)
+                throw new NullReferenceException();
+
             var resourceName = "WordleSolverRegex.WordList.txt";
             string wordList;
 
-            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-            using (StreamReader reader = new StreamReader(stream))
+            using (Stream? stream = assembly.GetManifestResourceStream(resourceName))
             {
-               wordList = reader.ReadToEnd();
+                if (stream == null)
+                    throw new NullReferenceException($"{resourceName}");
+
+                using StreamReader reader = new(stream);
+                wordList = reader.ReadToEnd();
             }
-      
+
             var letterPattern = new List<string>()
             {
                 "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]",
@@ -31,10 +38,18 @@ namespace WordleSolverRegex
             string letters = "";
             Console.WriteLine("start with 'CRANE'");
             string word = "CRANE";
+            int loopCount = 0;
             do
             {
-                Console.WriteLine("Type 0 for Gray, 1 for Yellow, 2 for Green (e.g. 00112)");
-                var input = Console.ReadLine();
+                loopCount++;
+
+                string? input;
+                do
+                {
+                    Console.WriteLine("Type 0 for Gray, 1 for Yellow, 2 for Green (e.g. 00112)");
+                    input = Console.ReadLine();
+
+                }while(string.IsNullOrEmpty(input));
 
                 //process input
                 letterPattern = ProcessInput(letterPattern, input, word, ref letters);
@@ -59,9 +74,7 @@ namespace WordleSolverRegex
                 word = possibleAnswers[nextIndex].ToUpper();
                 Console.WriteLine($"Try word: {word} ");
 
-                Console.ReadLine();
-
-            } while (true);
+            } while (loopCount <= 5);
         }
 
         private static List<string> ProcessInput(List<string> letterPattern, string input,
@@ -74,13 +87,21 @@ namespace WordleSolverRegex
 
                 if (input[charCount] == '0')
                 {
-                    //remove from all lists
+                    //if the current letter is on the "must have letters" don't remove
+                    if (letters.Contains(currentChar))
+                        continue;
+
                     //remove from every other list
                     for (int patternCount = 0; patternCount < letterPattern.Count; patternCount++)
                     {
-                        if (IsPattern(letterPattern, patternCount) && letterPattern[patternCount].Contains(currentChar))
-                            letterPattern[patternCount] = letterPattern[patternCount].Remove(letterPattern[patternCount].IndexOf(currentChar), 1);
+                        if (IsPattern(letterPattern, patternCount)
+                            && letterPattern[patternCount].Contains(currentChar))
+                        {
+                            letterPattern[patternCount] = letterPattern[patternCount]
+                                .Remove(letterPattern[patternCount].IndexOf(currentChar), 1);
+                        }
                     }
+
                 }
                 else if (input[charCount] == '1')
                 {
