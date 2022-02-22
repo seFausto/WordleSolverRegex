@@ -35,7 +35,8 @@ namespace WordleSolverRegex
                 "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]"
             };
 
-            string letters = "";
+            string letters = string.Empty;
+
             Console.WriteLine("start with 'CRANE'");
             string word = "CRANE";
             int loopCount = 0;
@@ -46,10 +47,11 @@ namespace WordleSolverRegex
                 string? input;
                 do
                 {
-                    Console.WriteLine("Type 0 for Gray, 1 for Yellow, 2 for Green (e.g. 00112)");
+                    Console.WriteLine("Type 0 for Gray, 1 for Yellow, 2 for Green (e.g. 00112) for each Letter");
                     input = Console.ReadLine();
 
-                }while(string.IsNullOrEmpty(input));
+                } while (string.IsNullOrEmpty(input) || input?.Length < 5);
+
 
                 //process input
                 letterPattern = ProcessInput(letterPattern, input, word, ref letters);
