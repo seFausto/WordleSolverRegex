@@ -8,15 +8,92 @@ namespace WordleSolverRegex
     internal class Program
     {
         private const string WinningInput = "22222";
+        private const string StartingPattern = "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]";
+        private const string WordListEmbeddedResourcename = "WordleSolverRegex.WordList.txt";
         private static Regex inputRegex = new Regex("^[012]{5}$");
         static void Main(string[] args)
+        {
+            string wordList = ReadWordList();
+
+            List<string> letterPattern = Enumerable.Repeat(StartingPattern, 5).ToList();
+
+            string mustHaveValues = string.Empty;
+
+            Console.WriteLine("Start with CRANE");
+            string word = "CRANE";
+
+            int loopCount = 0;
+
+            do
+            {
+                loopCount++;
+                string? input;
+                do
+                {
+                    Console.WriteLine("(Only valid values: 0 for Gray, 1 for Yellow, 2 for Green (e.g. 00112) for each Letter)");
+                    input = Console.ReadLine();
+
+                } while (!inputRegex.IsMatch(input ?? string.Empty));
+
+                if (input == null)
+                    throw new NullReferenceException(nameof(input));
+
+                if (input == WinningInput)
+                {
+                    Console.WriteLine("Contratulations!");
+                    break;
+                }
+
+                letterPattern = GeneratePatternsFromInput(letterPattern, input, word, ref mustHaveValues);
+
+                List<string> possibleAnswers = GetPossibleAnswers(wordList, letterPattern, mustHaveValues);
+                word = GetRandomWord(possibleAnswers);
+
+                Console.WriteLine("----------");
+                Console.WriteLine($"Listing matches: Count {possibleAnswers.Count}");
+                Console.WriteLine($"Must Include: {mustHaveValues}");
+                Console.WriteLine($"Try word: {word} ");
+
+            } while (loopCount < 5);
+
+            Console.WriteLine("Hope you got the answer!");
+            Console.ReadLine();
+        }
+
+        private static string GetRandomWord(List<string> possibleAnswers)
+        {
+            var random = new Random();
+            var nextIndex = random.Next(possibleAnswers.Count);
+
+            return possibleAnswers[nextIndex].ToUpper();
+        }
+
+        private static List<string> GetPossibleAnswers(string wordList, List<string> letterPattern,
+            string mustHaveLetters)
+        {
+            List<string>? possibleAnswers = new();
+
+            Regex regex = new(String.Join("", letterPattern), RegexOptions.IgnoreCase);
+
+            foreach (Match match in regex.Matches(wordList.ToString()))
+            {
+                var m = match.Value;
+
+                if (mustHaveLetters.ToUpper().All(value => m.ToUpper().Contains(value)))
+                    possibleAnswers.Add(m);
+            }
+
+            return possibleAnswers;
+        }
+
+        private static string ReadWordList()
         {
             var assembly = Assembly.GetExecutingAssembly();
 
             if (assembly == null)
                 throw new NullReferenceException();
 
-            var resourceName = "WordleSolverRegex.WordList.txt";
+            var resourceName = WordListEmbeddedResourcename;
             string wordList;
 
             using (Stream? stream = assembly.GetManifestResourceStream(resourceName))
@@ -28,121 +105,53 @@ namespace WordleSolverRegex
                 wordList = reader.ReadToEnd();
             }
 
-            var letterPattern = new List<string>()
-            {
-                "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]",
-                "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]",
-                "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]",
-                "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]",
-                "[ABCDEFGHIJKLMNOPQRSTUVWXYZ]"
-            };
-
-            string letters = string.Empty;
-
-            Console.WriteLine("Start with 'CRANE'");
-            string word = "CRANE";
-            int loopCount = 0;
-            do
-            {
-                loopCount++;
-
-                string? input;
-                do
-                {
-                    Console.WriteLine("Only valid values: 0 for Gray, 1 for Yellow, 2 for Green (e.g. 00112) for each Letter");
-                    input = Console.ReadLine();
-
-                } while (!inputRegex.IsMatch(input ?? string.Empty));
-
-                if (input == WinningInput)
-                {
-                    Console.WriteLine("Contratulations!");
-                    break;
-                }
-
-                if (input == null)
-                    throw new NullReferenceException(nameof(input));
-                
-                //process input
-                letterPattern = ProcessInput(letterPattern, input, word, ref letters);
-
-                Regex regex = new Regex(String.Join("", letterPattern), RegexOptions.IgnoreCase);
-
-                var matches = regex.Matches(wordList.ToString());
-                var possibleAnswers = new List<string>();
-
-                Console.WriteLine("----------");
-                Console.WriteLine($"Listing matches: Count {matches.Count}");
-                Console.WriteLine($"Must Include: {letters}");
-                foreach (Match match in matches)
-                {
-                    var m = match.Value;
-
-                    if (letters.ToUpper().All(value => m.ToUpper().Contains(value)))
-                        possibleAnswers.Add(m);
-                }
-
-                var random = new Random();
-                var nextIndex = random.Next(possibleAnswers.Count);
-                word = possibleAnswers[nextIndex].ToUpper();
-                Console.WriteLine($"Try word: {word} ");
-
-            } while (loopCount < 5);
-
-            Console.WriteLine("Hope you got the answer!");
-            Console.ReadLine();
+            return wordList;
         }
 
-        private static List<string> ProcessInput(List<string> letterPattern, string input,
-            string word, ref string letters)
+        private static List<string> GeneratePatternsFromInput(List<string> letterPattern, string input,
+            string word, ref string mustHaveLetters)
         {
-
-            for (int charCount = 0; charCount < input.Length; charCount++)
+            for (int inputIndex = 0; inputIndex < input.Length; inputIndex++)
             {
-                char currentChar = word[charCount];
-
-                if (input[charCount] == '0')
+                char currentLetter = word[inputIndex];
+         
+                switch (input[inputIndex])
                 {
-                    //if the current letter is on the "must have letters" don't remove
-                    if (letters.Contains(currentChar))
-                        continue;
-
-                    //remove from every other list
-                    for (int patternCount = 0; patternCount < letterPattern.Count; patternCount++)
-                    {
-                        if (IsPattern(letterPattern, patternCount)
-                            && letterPattern[patternCount].Contains(currentChar))
-                        {
-                            letterPattern[patternCount] = letterPattern[patternCount]
-                                .Remove(letterPattern[patternCount].IndexOf(currentChar), 1);
-                        }
-                    }
-
-                }
-                else if (input[charCount] == '1')
-                {
-                    if (!letters.Contains(currentChar))
-                    {
-                        letters += currentChar;
-                    }
-
-                    //remove from every other list
-                    for (int patternCount = 0; patternCount < letterPattern.Count; patternCount++)
-                    {
-                        if (patternCount != charCount)
+                    case '0':
+                        //dont' remove if letter is in must have
+                        if (mustHaveLetters.Contains(currentLetter))
                             continue;
 
-                        letterPattern[patternCount] = letterPattern[patternCount].Remove(letterPattern[patternCount].IndexOf(currentChar), 1);
-                    }
-                }
-                else if (input[charCount] == '2')
-                {
-                    if (!letters.Contains(currentChar))
-                    {
-                        letters += currentChar;
-                    }
+                        //remove from every other list
+                        for (int patternCount = 0; patternCount < letterPattern.Count; patternCount++)
+                        {
+                            if (IsPattern(letterPattern, patternCount)
+                                && letterPattern[patternCount].Contains(currentLetter))
+                            {
+                                letterPattern[patternCount] = letterPattern[patternCount]
+                                    .Remove(letterPattern[patternCount].IndexOf(currentLetter), 1);
+                            }
+                        }
 
-                    letterPattern[charCount] = currentChar.ToString();
+                        break;
+                    case '1':
+                        if (!mustHaveLetters.Contains(currentLetter))
+                        {
+                            mustHaveLetters += currentLetter;
+                        }
+                        letterPattern[inputIndex] = letterPattern[inputIndex]
+                            .Remove(letterPattern[inputIndex].IndexOf(currentLetter), 1);
+                        break;
+                    case '2':
+                        if (!mustHaveLetters.Contains(currentLetter))
+                        {
+                            mustHaveLetters += currentLetter;
+                        }
+
+                        letterPattern[inputIndex] = currentLetter.ToString();
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid input");
                 }
             }
             return letterPattern;
@@ -150,7 +159,7 @@ namespace WordleSolverRegex
 
         private static bool IsPattern(List<string> letterPattern, int patternCount)
         {
-            return letterPattern[patternCount].Contains("[");
+            return letterPattern[patternCount].Contains('[');
         }
     }
 }
