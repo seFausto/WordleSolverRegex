@@ -1,6 +1,4 @@
-﻿
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace WordleSolverRegex
@@ -19,8 +17,9 @@ namespace WordleSolverRegex
 
             string mustHaveValues = string.Empty;
 
-            Console.WriteLine("Start with CRANE");
-            string word = "CRANE";
+            string suggestion = "ADIEU";
+            Console.WriteLine($"Start with {suggestion}");
+            
 
             int loopCount = 0;
 
@@ -44,15 +43,15 @@ namespace WordleSolverRegex
                     break;
                 }
 
-                letterPattern = GeneratePatternsFromInput(letterPattern, input, word, ref mustHaveValues);
+                letterPattern = GeneratePatternsFromInput(letterPattern, input, suggestion, ref mustHaveValues);
 
                 List<string> possibleAnswers = GetPossibleAnswers(wordList, letterPattern, mustHaveValues);
-                word = GetRandomWord(possibleAnswers);
+                suggestion = GetRandomWord(possibleAnswers);
 
                 Console.WriteLine("----------");
                 Console.WriteLine($"Listing matches: Count {possibleAnswers.Count}");
                 Console.WriteLine($"Must Include: {mustHaveValues}");
-                Console.WriteLine($"Try word: {word} ");
+                Console.WriteLine($"Try word: {suggestion} ");
 
             } while (loopCount < 5);
 
@@ -71,16 +70,16 @@ namespace WordleSolverRegex
         private static List<string> GetPossibleAnswers(string wordList, List<string> letterPattern,
             string mustHaveLetters)
         {
-            List<string>? possibleAnswers = new();
+            List<string> possibleAnswers = new();
 
             Regex regex = new(String.Join("", letterPattern), RegexOptions.IgnoreCase);
 
             foreach (Match match in regex.Matches(wordList.ToString()))
             {
-                var m = match.Value;
+                var value = match.Value;
 
-                if (mustHaveLetters.ToUpper().All(value => m.ToUpper().Contains(value)))
-                    possibleAnswers.Add(m);
+                if (mustHaveLetters.ToUpper().All(x => value.ToUpper().Contains(x)))
+                    possibleAnswers.Add(value);
             }
 
             return possibleAnswers;
@@ -91,21 +90,18 @@ namespace WordleSolverRegex
             var assembly = Assembly.GetExecutingAssembly();
 
             if (assembly == null)
-                throw new NullReferenceException();
+                throw new NullReferenceException(nameof(assembly));
 
             var resourceName = WordListEmbeddedResourcename;
-            string wordList;
 
-            using (Stream? stream = assembly.GetManifestResourceStream(resourceName))
-            {
-                if (stream == null)
-                    throw new NullReferenceException($"{resourceName}");
+            using Stream? stream = assembly.GetManifestResourceStream(resourceName);
 
-                using StreamReader reader = new(stream);
-                wordList = reader.ReadToEnd();
-            }
+            if (stream == null)
+                throw new NullReferenceException($"{resourceName}");
 
-            return wordList;
+            using StreamReader reader = new(stream);
+
+            return reader.ReadToEnd();
         }
 
         private static List<string> GeneratePatternsFromInput(List<string> letterPattern, string input,
@@ -132,16 +128,18 @@ namespace WordleSolverRegex
                                     .Remove(letterPattern[patternCount].IndexOf(currentLetter), 1);
                             }
                         }
-
                         break;
+
                     case '1':
                         if (!mustHaveLetters.Contains(currentLetter))
                         {
                             mustHaveLetters += currentLetter;
                         }
+
                         letterPattern[inputIndex] = letterPattern[inputIndex]
                             .Remove(letterPattern[inputIndex].IndexOf(currentLetter), 1);
                         break;
+
                     case '2':
                         if (!mustHaveLetters.Contains(currentLetter))
                         {
