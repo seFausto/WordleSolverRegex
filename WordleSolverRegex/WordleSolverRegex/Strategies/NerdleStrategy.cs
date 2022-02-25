@@ -12,7 +12,8 @@ namespace WordleSolverRegex.Strategies
         private readonly Regex InputValidationRegex = new("^[012]{8}$");
         private const int MaxNumberOfAttempts = 6;
         private const int MaxNumberOfCharacters = 8;
-        private const string ValidCharacters = "1234567890+-=*\\]";
+        private const string Operands = "1234567890";
+        private const string Operators = @"+-=*\";
         private Dictionary<int, List<char>> PatternList;
         private string Suggestion = "9 + 8 - 10 = 7";
         private string WinningInput = "22222222";
@@ -30,10 +31,10 @@ namespace WordleSolverRegex.Strategies
             for (int entryCount = 0; entryCount < MaxNumberOfCharacters; entryCount++)
             {
                 var characterList = new List<char>();
-                foreach (var item in ValidCharacters)
-                {
-                    characterList.Add(item);
-                }
+                characterList.AddRange(Operands);
+
+                if (entryCount != 0 && entryCount != MaxNumberOfCharacters - 1)
+                    characterList.AddRange(Operators);
 
                 PatternList.Add(entryCount, characterList);
             }
@@ -43,12 +44,11 @@ namespace WordleSolverRegex.Strategies
         {
             //process input
 
-
             var suggestions = GenerateAnswers();
             return "12 + 10 = 22";
         }
 
-        private List<string> GeneratePatternsFromInput(List<string> letterPattern, string input)
+        private List<string> ProcessInput(List<string> letterPattern, string input)
         {
             for (int inputIndex = 0; inputIndex < input.Length; inputIndex++)
             {
