@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace WordleSolverRegex.Strategies
 {
-    public class WordleStrategy : IWordleStrategy
+    public class WordleStrategy : IBlankdleStrategy
     {
         private readonly Regex InputValidationRegex = new("^[012]{5}$");
         private const int MaxNumberOfAttempts = 5;

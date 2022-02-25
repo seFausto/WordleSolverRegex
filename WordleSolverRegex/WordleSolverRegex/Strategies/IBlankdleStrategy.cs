@@ -1,6 +1,6 @@
 ﻿namespace WordleSolverRegex.Strategies
 {
-    public interface IWordleStrategy
+    public interface IBlankdleStrategy
     {
         string GetNextSuggestion(string input);
         string InitialPrompt();
