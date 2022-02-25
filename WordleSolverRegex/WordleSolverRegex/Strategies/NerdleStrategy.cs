@@ -14,11 +14,10 @@ namespace WordleSolverRegex.Strategies
         private const int MaxNumberOfCharacters = 8;
         private const string Operands = "1234567890";
         private const string Operators = @"+-=*\";
-        private Dictionary<int, List<char>> PatternList;
+        private Dictionary<int, List<char>> PatternList = new();
         private string Suggestion = "9 + 8 - 10 = 7";
-        private string WinningInput = "22222222";
         private string MustHaveValues = string.Empty;
-
+        private int AttemptCount = 1;
         public NerdleStrategy()
         {
             InitializeDictionary();
@@ -42,65 +41,65 @@ namespace WordleSolverRegex.Strategies
 
         public string GetNextSuggestion(string input)
         {
-            //process input
+
+            AttemptCount++;
+            ProcessInput(PatternList, input);
+            if (AttemptCount < 3)
+                return "12 + 10 = 22";
 
             var suggestions = GenerateAnswers();
-            return "12 + 10 = 22";
+
+            //compute suggestions, and eliminate the ones that don't process
+
+            return suggestions[0];
         }
 
-        private List<string> ProcessInput(List<string> letterPattern, string input)
+        private void ProcessInput(Dictionary<int, List<char>> letterPattern, string input)
         {
             for (int inputIndex = 0; inputIndex < input.Length; inputIndex++)
             {
-                char currentLetter = Suggestion[inputIndex];
+                char currentCharacter = Suggestion[inputIndex];
 
                 switch (input[inputIndex])
                 {
                     case '0':
                         //dont' remove if letter is in must have
-                        if (MustHaveValues.Contains(currentLetter))
+                        if (MustHaveValues.Contains(currentCharacter))
                             continue;
 
                         //remove from every other list
                         for (int patternCount = 0; patternCount < letterPattern.Count; patternCount++)
                         {
-                            if (IsPattern(letterPattern[patternCount])
-                                && letterPattern[patternCount].Contains(currentLetter))
+                            if (letterPattern[patternCount].Contains(currentCharacter)
+                                && letterPattern[patternCount].Count > 1)
                             {
-                                letterPattern[patternCount] = letterPattern[patternCount]
-                                    .Remove(letterPattern[patternCount].IndexOf(currentLetter), 1);
+                                letterPattern[patternCount].Remove(currentCharacter);
                             }
                         }
                         break;
 
                     case '1':
-                        if (!MustHaveValues.Contains(currentLetter))
+                        if (!MustHaveValues.Contains(currentCharacter))
                         {
-                            MustHaveValues += currentLetter;
+                            MustHaveValues += currentCharacter;
                         }
 
-                        letterPattern[inputIndex] = letterPattern[inputIndex]
-                            .Remove(letterPattern[inputIndex].IndexOf(currentLetter), 1);
+                        letterPattern[inputIndex].Remove(currentCharacter);
                         break;
 
                     case '2':
-                        if (!MustHaveValues.Contains(currentLetter))
+                        if (!MustHaveValues.Contains(currentCharacter))
                         {
-                            MustHaveValues += currentLetter;
+                            MustHaveValues += currentCharacter;
                         }
 
-                        letterPattern[inputIndex] = currentLetter.ToString();
+                        letterPattern[inputIndex].Clear();
+                        letterPattern[inputIndex].Add(currentCharacter);
                         break;
                     default:
                         throw new ArgumentException("Invalid input");
                 }
             }
-            return letterPattern;
-        }
-
-        private bool IsPattern(string v)
-        {
-            throw new NotImplementedException();
         }
 
         public string InitialPrompt()
@@ -141,7 +140,6 @@ namespace WordleSolverRegex.Strategies
             return equations.ToList();
         }
 
-
         public bool IsValidInput(string? input)
         {
             if (string.IsNullOrWhiteSpace(input))
@@ -152,7 +150,7 @@ namespace WordleSolverRegex.Strategies
 
         public bool IsWinningInput(string input)
         {
-            return input == WinningInput;
+            return input.Distinct().Count() == 1;
         }
 
         public int MaxNumberOfAttemps()

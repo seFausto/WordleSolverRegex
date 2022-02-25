@@ -10,7 +10,6 @@ namespace WordleSolverRegex
         {
             IBlankdleStrategy strategy = new NerdleStrategy();
 
-
             Console.WriteLine(strategy.InitialPrompt());
 
             int loopCount = 0;
