@@ -49,6 +49,30 @@ namespace WordleSolverRegex.Strategies
             return stringBuilder.ToString();
         }
 
+
+        public int MaxNumberOfAttemps()
+        {
+            return MaxNumberOfAttempts;
+        }
+
+        public string InitialPrompt()
+        {
+            return $"Start with {Suggestion}";
+        }
+        
+        public string InputPrompt()
+        {
+            return "(Only valid values: 0 for Gray, 1 for Yellow, 2 for Green (e.g. 00112) for each Letter)";
+        }
+
+        public bool IsValidInput(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return false;
+
+            return InputValidationRegex.IsMatch(input);
+        }
+
         private static string ReadWordList()
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -67,29 +91,7 @@ namespace WordleSolverRegex.Strategies
 
             return reader.ReadToEnd();
         }
-
-        public int MaxNumberOfAttemps()
-        {
-            return MaxNumberOfAttempts;
-        }
-
-        public string InitialPrompt()
-        {
-            return $"Start with {Suggestion}";
-        }
-        public string InputPrompt()
-        {
-            return "(Only valid values: 0 for Gray, 1 for Yellow, 2 for Green (e.g. 00112) for each Letter)";
-        }
-
-        public bool IsValidInput(string? input)
-        {
-            if (string.IsNullOrWhiteSpace(input))
-                return false;
-
-            return InputValidationRegex.IsMatch(input);
-        }
-
+        
         private string GetRandomWord(List<string> possibleAnswers)
         {
             var random = new Random();
@@ -114,8 +116,6 @@ namespace WordleSolverRegex.Strategies
 
             return possibleAnswers;
         }
-
-
 
         private List<string> GeneratePatternsFromInput(List<string> letterPattern, string input)
         {

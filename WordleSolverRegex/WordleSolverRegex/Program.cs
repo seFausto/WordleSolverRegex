@@ -8,7 +8,8 @@ namespace WordleSolverRegex
     {
         static void Main(string[] args)
         {
-            IBlankdleStrategy strategy = new WordleStrategy();
+            IBlankdleStrategy strategy = new NerdleStrategy();
+
 
             Console.WriteLine(strategy.InitialPrompt());
 
