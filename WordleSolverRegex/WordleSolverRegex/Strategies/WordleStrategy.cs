@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace WordleSolverRegex.Strategies
 {
-    public class WordleStrategy
+    public class WordleStrategy : IWordleStrategy
     {
         private readonly Regex InputValidationRegex = new("^[012]{5}$");
         private const int MaxNumberOfAttempts = 5;
@@ -40,7 +40,7 @@ namespace WordleSolverRegex.Strategies
             List<string> possibleAnswers = GetPossibleAnswers();
             Suggestion = GetRandomWord(possibleAnswers);
 
-            StringBuilder  stringBuilder = new();
+            StringBuilder stringBuilder = new();
             stringBuilder.AppendLine("----------");
             stringBuilder.AppendLine($"Listing matches: Count {possibleAnswers.Count}");
             stringBuilder.AppendLine($"Must Include: {MustHaveValues}");
@@ -117,7 +117,7 @@ namespace WordleSolverRegex.Strategies
 
 
 
-        private List<string> GeneratePatternsFromInput(List<string> letterPattern, string input)           
+        private List<string> GeneratePatternsFromInput(List<string> letterPattern, string input)
         {
             for (int inputIndex = 0; inputIndex < input.Length; inputIndex++)
             {
