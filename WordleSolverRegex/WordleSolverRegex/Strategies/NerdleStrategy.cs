@@ -13,9 +13,9 @@ namespace WordleSolverRegex.Strategies
         private const int MaxNumberOfAttempts = 6;
         private const int MaxNumberOfCharacters = 8;
         private const string Operands = "1234567890";
-        private const string Operators = @"+-=*\";
+        private const string Operators = @"+-=*/";
         private Dictionary<int, List<char>> PatternList = new();
-        private string Suggestion = "9 + 8 - 10 = 7";
+        private string Suggestion = "9+8-10=7";
         private string MustHaveValues = string.Empty;
         private int AttemptCount = 1;
         public NerdleStrategy()
@@ -43,18 +43,26 @@ namespace WordleSolverRegex.Strategies
         {
 
             AttemptCount++;
-            ProcessInput(PatternList, input);
+            ProcessInput(input);
+            Suggestion = "12+10=22";
             if (AttemptCount < 3)
-                return "12 + 10 = 22";
+                return Suggestion;
 
             var suggestions = GenerateAnswers();
-
-            //compute suggestions, and eliminate the ones that don't process
-
-            return suggestions[0];
+            
+            return GetRandomEquation(suggestions);
         }
 
-        private void ProcessInput(Dictionary<int, List<char>> letterPattern, string input)
+        private string GetRandomEquation(List<string> suggestions)
+        {
+            if (suggestions.Count == 0)
+                return "No Suggetsions";
+
+            Random random = new();            
+            return suggestions[random.Next(suggestions.Count)];
+        }
+
+        private void ProcessInput(string input)
         {
             for (int inputIndex = 0; inputIndex < input.Length; inputIndex++)
             {
@@ -68,12 +76,12 @@ namespace WordleSolverRegex.Strategies
                             continue;
 
                         //remove from every other list
-                        for (int patternCount = 0; patternCount < letterPattern.Count; patternCount++)
+                        for (int patternCount = 0; patternCount < PatternList.Count; patternCount++)
                         {
-                            if (letterPattern[patternCount].Contains(currentCharacter)
-                                && letterPattern[patternCount].Count > 1)
+                            if (PatternList[patternCount].Contains(currentCharacter)
+                                && PatternList[patternCount].Count > 1)
                             {
-                                letterPattern[patternCount].Remove(currentCharacter);
+                                PatternList[patternCount].Remove(currentCharacter);
                             }
                         }
                         break;
@@ -84,7 +92,7 @@ namespace WordleSolverRegex.Strategies
                             MustHaveValues += currentCharacter;
                         }
 
-                        letterPattern[inputIndex].Remove(currentCharacter);
+                        PatternList[inputIndex].Remove(currentCharacter);
                         break;
 
                     case '2':
@@ -93,8 +101,8 @@ namespace WordleSolverRegex.Strategies
                             MustHaveValues += currentCharacter;
                         }
 
-                        letterPattern[inputIndex].Clear();
-                        letterPattern[inputIndex].Add(currentCharacter);
+                        PatternList[inputIndex].Clear();
+                        PatternList[inputIndex].Add(currentCharacter);
                         break;
                     default:
                         throw new ArgumentException("Invalid input");
@@ -118,9 +126,49 @@ namespace WordleSolverRegex.Strategies
             var answer = new List<string>();
 
             var equations = GenerateEquations();
-            // validate equation
 
-            return equations;
+            answer.AddRange(equations.Where(equation => IsValidEquation(equation)));
+
+            return answer;
+        }
+
+        private bool IsValidEquation(string equation)
+        {
+            if (equation.Count(x => x == '=') != 1)
+                return false;
+
+            // if (equation contains all values from must have
+            if (!MustHaveValues.All(ch => equation.Contains(ch)))
+            {
+                return false;
+            }
+
+            var formulas = equation.Replace(" ", string.Empty).Split('=');
+            Regex regex = new Regex(@"^\d+([\+\*\-\/]\d+)*$");
+            foreach (var formula in formulas)
+            {
+                if (!regex.IsMatch(formula))
+                    return false;
+                else
+                {
+                    var d = 3;
+                }
+            }
+
+
+            try
+            {
+                StringToFormula stf = new StringToFormula();
+                double result = stf.Eval(formulas[0]);
+                double result2 = stf.Eval(formulas[1]);
+
+                return result == result2;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
         }
 
         private List<string> GenerateEquations()
@@ -136,7 +184,7 @@ namespace WordleSolverRegex.Strategies
                         from f in PatternList[5]
                         from g in PatternList[6]
                         from h in PatternList[7]
-                        select $"{a} {b} {c} {d} {e} {f} {g} {h}";
+                        select $"{a}{b}{c}{d}{e}{f}{g}{h}";
             return equations.ToList();
         }
 
@@ -156,6 +204,121 @@ namespace WordleSolverRegex.Strategies
         public int MaxNumberOfAttemps()
         {
             return MaxNumberOfAttempts;
+        }
+    }
+
+    public class StringToFormula
+    {
+        private string[] _operators = { "-", "+", "/", "*", "^" };
+        private Func<double, double, double>[] _operations = {
+        (a1, a2) => a1 - a2,
+        (a1, a2) => a1 + a2,
+        (a1, a2) => a1 / a2,
+        (a1, a2) => a1 * a2,
+        (a1, a2) => Math.Pow(a1, a2)
+    };
+
+        public double Eval(string expression)
+        {
+            List<string> tokens = getTokens(expression);
+            Stack<double> operandStack = new Stack<double>();
+            Stack<string> operatorStack = new Stack<string>();
+            int tokenIndex = 0;
+
+            while (tokenIndex < tokens.Count)
+            {
+                string token = tokens[tokenIndex];
+
+                //If this is an operator  
+                if (Array.IndexOf(_operators, token) >= 0)
+                {
+                    while (operatorStack.Count > 0 && Array.IndexOf(_operators, token) < Array.IndexOf(_operators, operatorStack.Peek()))
+                    {
+                        string op = operatorStack.Pop();
+                        double arg2 = operandStack.Pop();
+                        double arg1 = operandStack.Pop();
+                        operandStack.Push(_operations[Array.IndexOf(_operators, op)](arg1, arg2));
+                    }
+                    operatorStack.Push(token);
+                }
+                else
+                {
+                    operandStack.Push(double.Parse(token));
+                }
+                tokenIndex += 1;
+            }
+
+            while (operatorStack.Count > 0)
+            {
+                string op = operatorStack.Pop();
+                double arg2 = operandStack.Pop();
+                double arg1 = operandStack.Pop();
+                operandStack.Push(_operations[Array.IndexOf(_operators, op)](arg1, arg2));
+            }
+            return operandStack.Pop();
+        }
+
+        private string getSubExpression(List<string> tokens, ref int index)
+        {
+            StringBuilder subExpr = new StringBuilder();
+            int parenlevels = 1;
+            index += 1;
+            while (index < tokens.Count && parenlevels > 0)
+            {
+                string token = tokens[index];
+                if (tokens[index] == "(")
+                {
+                    parenlevels += 1;
+                }
+
+                if (tokens[index] == ")")
+                {
+                    parenlevels -= 1;
+                }
+
+                if (parenlevels > 0)
+                {
+                    subExpr.Append(token);
+                }
+
+                index += 1;
+            }
+
+            if ((parenlevels > 0))
+            {
+                throw new ArgumentException("Mis-matched parentheses in expression");
+            }
+            return subExpr.ToString();
+        }
+
+        private List<string> getTokens(string expression)
+        {
+            string operators = "()^*/+-";
+            List<string> tokens = new List<string>();
+            StringBuilder sb = new StringBuilder();
+
+            foreach (char c in expression.Replace(" ", string.Empty))
+            {
+                if (operators.IndexOf(c) >= 0)
+                {
+                    if ((sb.Length > 0))
+                    {
+                        tokens.Add(sb.ToString());
+                        sb.Length = 0;
+                    }
+                    tokens.Add(c.ToString());
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+
+            if ((sb.Length > 0))
+            {
+                tokens.Add(sb.ToString());
+            }
+            return tokens;
         }
     }
 }

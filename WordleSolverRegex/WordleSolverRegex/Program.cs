@@ -36,7 +36,6 @@ namespace WordleSolverRegex
 
                 Console.WriteLine(strategy.GetNextSuggestion(input));
 
-
             } while (loopCount < strategy.MaxNumberOfAttemps());
 
             Console.WriteLine("Hope you got the answer!");
