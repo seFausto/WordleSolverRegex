@@ -44,13 +44,16 @@ namespace WordleSolverRegex.Strategies
 
             AttemptCount++;
             ProcessInput(input);
-            Suggestion = "12+10=22";
+          
             if (AttemptCount < 3)
+            {
+                Suggestion = "12+10=22";
                 return Suggestion;
-
+            }
             var suggestions = GenerateAnswers();
             
-            return GetRandomEquation(suggestions);
+            Suggestion = GetRandomEquation(suggestions);
+            return Suggestion;
         }
 
         private string GetRandomEquation(List<string> suggestions)
