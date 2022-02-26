@@ -53,7 +53,14 @@ namespace WordleSolverRegex.Strategies
             var suggestions = GenerateAnswers();
             
             Suggestion = GetRandomEquation(suggestions);
-            return Suggestion;
+
+            StringBuilder stringBuilder = new();
+            stringBuilder.AppendLine("----------");
+            stringBuilder.AppendLine($"Listing matches: Count {suggestions.Count}");
+            stringBuilder.AppendLine($"Must Include values: {MustHaveValues}");
+            stringBuilder.AppendLine($"Try: {Suggestion} ");
+
+            return stringBuilder.ToString();
         }
 
         private string GetRandomEquation(List<string> suggestions)
