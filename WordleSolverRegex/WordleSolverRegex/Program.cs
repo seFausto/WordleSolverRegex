@@ -8,7 +8,17 @@ namespace WordleSolverRegex
     {
         static void Main(string[] args)
         {
-            IBlankdleStrategy strategy = new NerdleStrategy();
+            Console.WriteLine("(W)ordle or (N)erdle?");
+            var strategyToUse = Console.ReadLine();
+
+            IBlankdleStrategy strategy;
+             
+            strategy = strategyToUse?.ToUpper() switch
+            {
+                "W" => new WordleStrategy(),
+                "N" => new NerdleStrategy(),
+                _ => throw new ArgumentException("Strategy Not Defined"),
+            };
 
             Console.WriteLine(strategy.InitialPrompt());
 
