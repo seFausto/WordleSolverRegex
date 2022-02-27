@@ -12,8 +12,8 @@ If a letter shows yellow on the second, I know that it exists in another box, so
 
 If a letter is gray, I know that it doesn't exist at all on the solution.
 
-### Woldle Solution
-Worlde has a default RegEx and as more information is known, the application updates the RegEx string with the new facts.
+### Wordle Solution
+Wordle has a default RegEx and as more information is known, the application updates the RegEx string with the new facts.
 
 ### Nerdle Solution
 On Nerdle, the equations are built with the available information. The first step is to get all combnations available, then filter out by different rules (must have only one "=", or cannot start or end with a symbol), then both sides of the equation must compute, finally they have to match.
