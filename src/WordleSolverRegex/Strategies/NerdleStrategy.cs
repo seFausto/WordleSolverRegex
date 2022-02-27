@@ -66,7 +66,7 @@ namespace WordleSolverRegex.Strategies
         private string GetRandomEquation(List<string> suggestions)
         {
             if (suggestions.Count == 0)
-                return "No Suggetsions";
+                return "No Suggestions";
 
             Random random = new();
             return suggestions[random.Next(suggestions.Count)];
