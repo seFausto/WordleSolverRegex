@@ -44,14 +44,14 @@ namespace WordleSolverRegex.Strategies
 
             AttemptCount++;
             ProcessInput(input);
-          
+
             if (AttemptCount < 3)
             {
                 Suggestion = "12+10=22";
                 return Suggestion;
             }
             var suggestions = GenerateAnswers();
-            
+
             Suggestion = GetRandomEquation(suggestions);
 
             StringBuilder stringBuilder = new();
@@ -68,7 +68,7 @@ namespace WordleSolverRegex.Strategies
             if (suggestions.Count == 0)
                 return "No Suggetsions";
 
-            Random random = new();            
+            Random random = new();
             return suggestions[random.Next(suggestions.Count)];
         }
 
@@ -159,10 +159,6 @@ namespace WordleSolverRegex.Strategies
             {
                 if (!regex.IsMatch(formula))
                     return false;
-                else
-                {
-                    var d = 3;
-                }
             }
 
 
@@ -204,11 +200,6 @@ namespace WordleSolverRegex.Strategies
                 return false;
 
             return InputValidationRegex.IsMatch(input);
-        }
-
-        public bool IsWinningInput(string input)
-        {
-            return input.Distinct().Count() == 1;
         }
 
         public int MaxNumberOfAttemps()

@@ -20,17 +20,10 @@ namespace WordleSolverRegex.Strategies
         private List<string> LetterPattern = Enumerable.Repeat(StartingPattern, 5).ToList();
         private string MustHaveValues = string.Empty;
 
-        private const string WinningInput = "22222";
-
         public WordleStrategy()
         {
-            Suggestion = "ADIEU";
+            Suggestion = "RAISE";
             WordList = ReadWordList();
-        }
-
-        public bool IsWinningInput(string input)
-        {
-            return input == WinningInput;
         }
 
         public string GetNextSuggestion(string input)
@@ -59,7 +52,7 @@ namespace WordleSolverRegex.Strategies
         {
             return $"Start with {Suggestion}";
         }
-        
+
         public string InputPrompt()
         {
             return "(Only valid values: 0 for Gray, 1 for Yellow, 2 for Green (e.g. 00112) for each Letter)";
@@ -91,7 +84,7 @@ namespace WordleSolverRegex.Strategies
 
             return reader.ReadToEnd();
         }
-        
+
         private string GetRandomWord(List<string> possibleAnswers)
         {
             var random = new Random();
