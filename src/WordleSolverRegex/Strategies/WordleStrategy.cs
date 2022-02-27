@@ -22,7 +22,7 @@ namespace WordleSolverRegex.Strategies
 
         public WordleStrategy()
         {
-            Suggestion = "RAISE";
+            Suggestion = "AROSE";
             WordList = ReadWordList();
         }
 

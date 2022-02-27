@@ -210,8 +210,8 @@ namespace WordleSolverRegex.Strategies
 
     public class StringToFormula
     {
-        private string[] _operators = { "-", "+", "/", "*", "^" };
-        private Func<double, double, double>[] _operations = {
+        private readonly string[] _operators = { "-", "+", "/", "*", "^" };
+        private readonly Func<double, double, double>[] _operations = {
         (a1, a2) => a1 - a2,
         (a1, a2) => a1 + a2,
         (a1, a2) => a1 / a2,
@@ -233,7 +233,8 @@ namespace WordleSolverRegex.Strategies
                 //If this is an operator  
                 if (Array.IndexOf(_operators, token) >= 0)
                 {
-                    while (operatorStack.Count > 0 && Array.IndexOf(_operators, token) < Array.IndexOf(_operators, operatorStack.Peek()))
+                    while (operatorStack.Count > 0 
+                        && Array.IndexOf(_operators, token) < Array.IndexOf(_operators, operatorStack.Peek()))
                     {
                         string op = operatorStack.Pop();
                         double arg2 = operandStack.Pop();
