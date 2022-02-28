@@ -272,14 +272,6 @@ namespace WordleSolverRegex.Strategies
             }
             return reverseOperandStack.Pop();
 
-            //while (operatorStack.Count > 0)
-            //{
-            //    string op = operatorStack.Pop();
-            //    double arg2 = operandStack.Pop();
-            //    double arg1 = operandStack.Pop();
-            //    operandStack.Push(_operations[Array.IndexOf(_operators, op)](arg1, arg2));
-            //}
-            //return operandStack.Pop();
         }
 
         private string getSubExpression(List<string> tokens, ref int index)
