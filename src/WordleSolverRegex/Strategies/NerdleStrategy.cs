@@ -249,15 +249,37 @@ namespace WordleSolverRegex.Strategies
                 }
                 tokenIndex += 1;
             }
+            Stack<double> reverseOperandStack = new();
+
+            while (operandStack.Count > 0)
+            { 
+                reverseOperandStack.Push(operandStack.Pop());
+            }
+
+            Stack<string> reverseOperatorStack = new();
 
             while (operatorStack.Count > 0)
             {
-                string op = operatorStack.Pop();
-                double arg2 = operandStack.Pop();
-                double arg1 = operandStack.Pop();
-                operandStack.Push(_operations[Array.IndexOf(_operators, op)](arg1, arg2));
+                reverseOperatorStack.Push(operatorStack.Pop());
             }
-            return operandStack.Pop();
+
+            while (reverseOperatorStack.Count > 0)
+            {
+                string op = reverseOperatorStack.Pop();
+                double arg2 = reverseOperandStack.Pop();
+                double arg1 = reverseOperandStack.Pop();
+                reverseOperandStack.Push(_operations[Array.IndexOf(_operators, op)](arg2, arg1));
+            }
+            return reverseOperandStack.Pop();
+
+            //while (operatorStack.Count > 0)
+            //{
+            //    string op = operatorStack.Pop();
+            //    double arg2 = operandStack.Pop();
+            //    double arg1 = operandStack.Pop();
+            //    operandStack.Push(_operations[Array.IndexOf(_operators, op)](arg1, arg2));
+            //}
+            //return operandStack.Pop();
         }
 
         private string getSubExpression(List<string> tokens, ref int index)
