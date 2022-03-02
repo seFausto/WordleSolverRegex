@@ -66,7 +66,7 @@ namespace WordleSolverRegex.Strategies
         private string GetRandomEquation(List<string> suggestions)
         {
             if (suggestions.Count == 0)
-                return "No Suggestions";
+                return "No Suggestions. Please check your inputs, this happens when there's a typo";
 
             Random random = new();
             return suggestions[random.Next(suggestions.Count)];
@@ -147,7 +147,7 @@ namespace WordleSolverRegex.Strategies
             if (equation.Count(x => x == '=') != 1)
                 return false;
 
-            // if (equation contains all values from must have
+            // if equation contains all values from must have
             if (!MustHaveValues.All(ch => equation.Contains(ch)))
             {
                 return false;
@@ -160,7 +160,6 @@ namespace WordleSolverRegex.Strategies
                 if (!regex.IsMatch(formula))
                     return false;
             }
-
 
             try
             {
@@ -181,7 +180,6 @@ namespace WordleSolverRegex.Strategies
         {
             IEnumerable<string> equations = new List<string>();
 
-
             equations = from a in PatternList[0]
                         from b in PatternList[1]
                         from c in PatternList[2]
@@ -191,6 +189,7 @@ namespace WordleSolverRegex.Strategies
                         from g in PatternList[6]
                         from h in PatternList[7]
                         select $"{a}{b}{c}{d}{e}{f}{g}{h}";
+
             return equations.ToList();
         }
 
@@ -233,7 +232,7 @@ namespace WordleSolverRegex.Strategies
                 //If this is an operator  
                 if (Array.IndexOf(_operators, token) >= 0)
                 {
-                    while (operatorStack.Count > 0 
+                    while (operatorStack.Count > 0
                         && Array.IndexOf(_operators, token) < Array.IndexOf(_operators, operatorStack.Peek()))
                     {
                         string op = operatorStack.Pop();
@@ -252,7 +251,7 @@ namespace WordleSolverRegex.Strategies
             Stack<double> reverseOperandStack = new();
 
             while (operandStack.Count > 0)
-            { 
+            {
                 reverseOperandStack.Push(operandStack.Pop());
             }
 
