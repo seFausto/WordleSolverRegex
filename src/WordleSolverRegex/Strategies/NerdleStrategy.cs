@@ -50,6 +50,7 @@ namespace WordleSolverRegex.Strategies
                 Suggestion = "12+10=22";
                 return Suggestion;
             }
+
             var suggestions = GenerateAnswers();
 
             Suggestion = GetRandomEquation(suggestions);
@@ -58,6 +59,7 @@ namespace WordleSolverRegex.Strategies
             stringBuilder.AppendLine("----------");
             stringBuilder.AppendLine($"Listing matches: Count {suggestions.Count}");
             stringBuilder.AppendLine($"Must Include values: {MustHaveValues}");
+            stringBuilder.AppendLine("----------");
             stringBuilder.AppendLine($"Try: {Suggestion} ");
 
             return stringBuilder.ToString();
