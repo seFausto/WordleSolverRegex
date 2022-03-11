@@ -39,12 +39,8 @@ namespace WordleSolverRegex.Strategies
             }
         }
 
-        public string GetNextSuggestion(string input)
+        public string GetNextSuggestion()
         {
-
-            AttemptCount++;
-            ProcessInput(input);
-
             if (AttemptCount < 3)
             {
                 Suggestion = "12+10=22";
@@ -56,13 +52,18 @@ namespace WordleSolverRegex.Strategies
             Suggestion = GetRandomEquation(suggestions);
 
             StringBuilder stringBuilder = new();
-            stringBuilder.AppendLine("----------");
+            stringBuilder.AppendLine("---------------------------------------------");
             stringBuilder.AppendLine($"Listing matches: Count {suggestions.Count}");
             stringBuilder.AppendLine($"Must Include values: {MustHaveValues}");
-            stringBuilder.AppendLine("----------");
             stringBuilder.AppendLine($"Try: {Suggestion} ");
 
             return stringBuilder.ToString();
+        }
+
+        public void CalculateSuggestions(string input)
+        {
+            AttemptCount++;
+            ProcessInput(input);
         }
 
         private string GetRandomEquation(List<string> suggestions)
@@ -83,6 +84,7 @@ namespace WordleSolverRegex.Strategies
                 switch (input[inputIndex])
                 {
                     case '0':
+                    case 'B':
                         //dont' remove if letter is in must have
                         if (MustHaveValues.Contains(currentCharacter))
                             continue;
@@ -99,6 +101,7 @@ namespace WordleSolverRegex.Strategies
                         break;
 
                     case '1':
+                    case 'Y':
                         if (!MustHaveValues.Contains(currentCharacter))
                         {
                             MustHaveValues += currentCharacter;
@@ -108,6 +111,7 @@ namespace WordleSolverRegex.Strategies
                         break;
 
                     case '2':
+                    case 'G':
                         if (!MustHaveValues.Contains(currentCharacter))
                         {
                             MustHaveValues += currentCharacter;
@@ -207,6 +211,7 @@ namespace WordleSolverRegex.Strategies
         {
             return MaxNumberOfAttempts;
         }
+
     }
 
     public class StringToFormula

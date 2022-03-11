@@ -2,7 +2,8 @@
 {
     public interface IBlankdleStrategy
     {
-        string GetNextSuggestion(string input);
+        string GetNextSuggestion();
+        void CalculateSuggestions(string input);
         string InitialPrompt();
         string InputPrompt();
         bool IsValidInput(string? input);

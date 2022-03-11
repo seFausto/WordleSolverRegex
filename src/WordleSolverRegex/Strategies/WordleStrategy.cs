@@ -26,10 +26,8 @@ namespace WordleSolverRegex.Strategies
             WordList = ReadWordList();
         }
 
-        public string GetNextSuggestion(string input)
-        {
-            LetterPattern = GeneratePatternsFromInput(LetterPattern, input);
-
+        public string GetNextSuggestion()
+        { 
             List<string> possibleAnswers = GetPossibleAnswers();
             Suggestion = GetRandomWord(possibleAnswers);
 
@@ -42,6 +40,10 @@ namespace WordleSolverRegex.Strategies
             return stringBuilder.ToString();
         }
 
+        public void CalculateSuggestions(string input)
+        {
+            LetterPattern = GeneratePatternsFromInput(LetterPattern, input);
+        }
 
         public int MaxNumberOfAttemps()
         {

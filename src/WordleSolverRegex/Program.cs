@@ -12,7 +12,7 @@ namespace WordleSolverRegex
             var strategyToUse = Console.ReadLine();
 
             IBlankdleStrategy strategy;
-             
+
             strategy = strategyToUse?.ToUpper() switch
             {
                 "W" => new WordleStrategy(),
@@ -44,7 +44,16 @@ namespace WordleSolverRegex
                     break;
                 }
 
-                Console.WriteLine(strategy.GetNextSuggestion(input));
+                strategy.CalculateSuggestions(input);
+
+                bool useSuggestion;
+                do
+                {
+                    Console.WriteLine(strategy.GetNextSuggestion());
+
+                    Console.WriteLine("Use this suggestion? (Y)es or (N)o");
+                    useSuggestion = Console.ReadLine()?.ToUpper() == "Y";
+                }while (!useSuggestion);
 
             } while (loopCount < strategy.MaxNumberOfAttemps());
 
