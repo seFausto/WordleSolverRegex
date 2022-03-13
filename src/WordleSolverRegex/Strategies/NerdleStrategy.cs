@@ -18,6 +18,9 @@ namespace WordleSolverRegex.Strategies
         private string Suggestion = "9+8-10=7";
         private string MustHaveValues = string.Empty;
         private int AttemptCount = 1;
+        readonly Regex RegexLeftSide = new Regex(@"^\d+([\+\*\-\/]\d+)*$");
+        readonly Regex RegexRightSite = new Regex(@"^\d+$");
+
         public NerdleStrategy()
         {
             InitializeDictionary();
@@ -160,16 +163,17 @@ namespace WordleSolverRegex.Strategies
             }
 
             var formulas = equation.Replace(" ", string.Empty).Split('=');
-            Regex regex = new Regex(@"^\d+([\+\*\-\/]\d+)*$");
-            foreach (var formula in formulas)
-            {
-                if (!regex.IsMatch(formula))
-                    return false;
-            }
+
+            if (!RegexLeftSide.IsMatch(formulas[0]))
+                return false;
+
+            //Should only be numbers
+            if (!RegexRightSite.IsMatch(formulas[1])) 
+                return false;
 
             try
             {
-                StringToFormula stf = new StringToFormula();
+                StringToFormula stf = new();
                 double result = stf.Eval(formulas[0]);
                 double result2 = stf.Eval(formulas[1]);
 
